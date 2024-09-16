@@ -87,6 +87,7 @@ class RequestProcessor:
         self._subscription_response_queue: TaskReliantQueue[
             Union[RPCResponse, TaskNotRunning]
         ] = TaskReliantQueue(maxsize=subscription_response_queue_size)
+        self.new_response = asyncio.Event()
 
     @property
     def active_subscriptions(self) -> Dict[str, Any]:
@@ -321,6 +322,8 @@ class RequestProcessor:
                 f"    cache_key={cache_key},\n    response={raw_response}"
             )
             self._request_response_cache.cache(cache_key, raw_response)
+        self.new_response.set()
+        self.new_response.clear()
 
     async def pop_raw_response(
         self, cache_key: str = None, subscription: bool = False
@@ -376,3 +379,4 @@ class RequestProcessor:
         self._subscription_response_queue = TaskReliantQueue(
             maxsize=self._subscription_response_queue.maxsize
         )
+        self.new_response.clear()

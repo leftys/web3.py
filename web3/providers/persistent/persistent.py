@@ -284,7 +284,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                     # check if an exception was recorded in the listener task and raise
                     # it in the main loop if so
                     self._handle_listener_task_exceptions()
-                    await asyncio.sleep(0)
+                    await self._request_processor.new_response.wait()
 
         try:
             # Add the request timeout around the while loop that checks the request
